@@ -1,4 +1,4 @@
-from libs.service_monitor_base import ServiceMonitorList
+from libs.service_monitor_base import ServiceMonitorBase
 from plugins.qbittorrent_service_monitor import QBittorrentMonitor
 from plugins.plex_service_monitor import PlexMonitor
 from plugins.process_monitor import ProcessMonitor
@@ -23,7 +23,7 @@ class MonitoringService:
         self.check_monitor_activity(monitors)
         self.shutdown_pc()
 
-    def load_monitors(self) -> ServiceMonitorList:
+    def load_monitors(self) -> list[ServiceMonitorBase]:
         monitors = [
             QBittorrentMonitor(),
             PlexMonitor(),
@@ -33,11 +33,11 @@ class MonitoringService:
         ]
         return monitors
 
-    def init_config_path(self, monitors:ServiceMonitorList, config_folder:str):
+    def init_config_path(self, monitors:list[ServiceMonitorBase], config_folder:str):
         for monitor in monitors:
             monitor.set_config_path(config_folder)
 
-    def any_monitor_has_activity(self, monitors:ServiceMonitorList) -> bool:
+    def any_monitor_has_activity(self, monitors:list[ServiceMonitorBase]) -> bool:
         any_activity = False
         for monitor in monitors:
             if monitor.is_enabled() and monitor.has_activity():
@@ -45,7 +45,7 @@ class MonitoringService:
                 any_activity = True
         return any_activity
 
-    def check_monitor_activity(self, monitors:ServiceMonitorList):
+    def check_monitor_activity(self, monitors:list[ServiceMonitorBase]):
         current_iteration = 0
         while True:
             status = self.any_monitor_has_activity(monitors)

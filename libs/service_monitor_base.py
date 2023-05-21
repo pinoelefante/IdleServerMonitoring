@@ -40,7 +40,7 @@ class ServiceMonitorBase:
     def service_name(self) -> str:
         return self.__class__.__name__
 
-    def set_config_path(self, config_folder):
+    def set_config_path(self, config_folder:str):
         self.config_path=config_folder
         self.reload()
 
@@ -52,6 +52,3 @@ class ServiceMonitorBase:
     
     def is_mac(self) -> bool:
         return sys.platform.startswith("darwin")
-    
-
-ServiceMonitorList = list[ServiceMonitorBase]
