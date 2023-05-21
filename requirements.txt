@@ -1,0 +1,8 @@
+#qbittorrent monitoring
+qbittorrent-api
+
+#plex monitoring
+plexapi
+
+#process monitor
+psutil
