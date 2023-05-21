@@ -10,6 +10,7 @@ class PlexMonitor(ServiceMonitorBase):
             sessions = self.plexserver.sessions()
             return len(sessions) > 0
         except:
+            print("Plex: can't list running sessions")
             return False
     
     def after_config_file_loaded(self):

@@ -1,15 +1,17 @@
 from os.path import join, exists
 from json import load
+import sys
 
 class ServiceMonitorBase:
 
     def __del__(self):
         self.stop()
 
-    def is_enabled(self):
-        return hasattr(self.config_data, "enabled") and bool(self.config_data["enabled"])
+    def is_enabled(self) -> bool:
+        has_attr = hasattr(self.config_data, "enabled")
+        return not has_attr or (has_attr and bool(self.config_data.get("enabled", True)))
     
-    def has_activity(self):
+    def has_activity(self) -> bool:
         return False
     
     def reload(self):
@@ -28,16 +30,28 @@ class ServiceMonitorBase:
     def stop(self):
         print("Stopping %s" % self.service_name())
 
-    def config_file_path(self):
+    def config_file_path(self) -> str:
         config_path = self.config_path if hasattr(self, "config_path") else "."
         return join(config_path, self.config_filename())
 
-    def config_filename(self):
+    def config_filename(self) -> str:
         return "%s.json" % self.service_name()
     
-    def service_name(self):
+    def service_name(self) -> str:
         return self.__class__.__name__
 
     def set_config_path(self, config_folder):
         self.config_path=config_folder
         self.reload()
+
+    def is_linux(self) -> bool:
+        return sys.platform.startswith("linux")
+
+    def is_windows(self) -> bool:
+        return sys.platform.startswith("win")
+    
+    def is_mac(self) -> bool:
+        return sys.platform.startswith("darwin")
+    
+
+ServiceMonitorList = list[ServiceMonitorBase]

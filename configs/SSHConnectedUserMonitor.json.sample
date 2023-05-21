@@ -1,0 +1,5 @@
+{
+    "user_list_command": "who",
+    "grep_string": "pts",
+    "count_command": "wc -l"
+}

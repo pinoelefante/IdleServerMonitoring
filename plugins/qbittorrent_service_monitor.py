@@ -1,5 +1,4 @@
 import qbittorrentapi
-import json
 from libs.service_monitor_base import ServiceMonitorBase
 
 RATIO_KEY = "ratio"

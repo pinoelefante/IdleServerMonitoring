@@ -1,47 +1,62 @@
+from libs.service_monitor_base import ServiceMonitorList
 from plugins.qbittorrent_service_monitor import QBittorrentMonitor
 from plugins.plex_service_monitor import PlexMonitor
 from plugins.process_monitor import ProcessMonitor
+from plugins.ssh_user_monitor import SSHConnectedUserMonitor
 from time import sleep
 from os import system
 import sys
 
 MONITORING_PERIOD = 30 #30 min
 
-def load_monitors():
-    monitors = [
-        QBittorrentMonitor(),
-        PlexMonitor(),
-        ProcessMonitor()
-    ]
-    return monitors
+class MonitoringService:
 
-def init_config_path(monitors, config_folder):
-    for monitor in monitors:
-        monitor.set_config_path(config_folder)
+    def start(self, config):
+        monitors = self.load_monitors()
+        if len(monitors) == 0:
+            print("No monitor configured")
+            exit(1)
+        self.init_config_path(monitors=monitors, config_folder=config)
+        self.check_monitor_activity(monitors)
+        self.shutdown_pc()
 
-def any_monitor_has_activity(monitors):
-    any_activity = False
-    for monitor in monitors:
-        if monitor.is_enabled() and monitor.has_activity():
-            print("Service: %s has active" % monitor.service_name())
-            any_activity = True
-    return any_activity
+    def load_monitors(self) -> ServiceMonitorList:
+        monitors = [
+            QBittorrentMonitor(),
+            PlexMonitor(),
+            ProcessMonitor(),
+            SSHConnectedUserMonitor()
+        ]
+        return monitors
 
-def check_monitor_activity(monitors):
-    current_iteration = 0
-    while True:
-        status = any_monitor_has_activity(monitors)
-        if status:
-            current_iteration = 0
-        else:
-            current_iteration += 1
-        print("Iteration count: %d" % current_iteration)
-        if current_iteration == MONITORING_PERIOD:
-            break
-        sleep(60)
+    def init_config_path(self, monitors:ServiceMonitorList, config_folder:str):
+        for monitor in monitors:
+            monitor.set_config_path(config_folder)
 
-def shutdown_pc():
-    system("systemctl poweroff")
+    def any_monitor_has_activity(self, monitors:ServiceMonitorList) -> bool:
+        any_activity = False
+        for monitor in monitors:
+            if monitor.is_enabled() and monitor.has_activity():
+                print("Detected activity for service %s" % monitor.service_name())
+                any_activity = True
+        return any_activity
+
+    def check_monitor_activity(self, monitors:ServiceMonitorList):
+        current_iteration = 0
+        while True:
+            status = self.any_monitor_has_activity(monitors)
+            if status:
+                current_iteration = 0
+            else:
+                current_iteration += 1
+            print("Iteration count: %d" % current_iteration)
+            if current_iteration == MONITORING_PERIOD:
+                break
+            sleep(60)
+
+    def shutdown_pc(self):
+        #https://tojaj.com/how-to-turn-off-a-linux-system-without-root-or-sudo/
+        system("systemctl poweroff")
 
 if __name__ == "__main__":
     print("Starting monitoring")
@@ -50,10 +65,6 @@ if __name__ == "__main__":
         exit(1)
     config = sys.argv[1]
     print("Config folder: %s" % config)
-    monitors = load_monitors()
-    if len(monitors) == 0:
-        print("No monitor configured")
-        exit(1)
-    init_config_path(monitors=monitors, config_folder=config)
-    check_monitor_activity(monitors)
-    shutdown_pc()
+
+    monitoring = MonitoringService()
+    monitoring.start(config)
