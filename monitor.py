@@ -3,11 +3,14 @@ from plugins.qbittorrent_service_monitor import QBittorrentMonitor
 from plugins.plex_service_monitor import PlexMonitor
 from plugins.process_monitor import ProcessMonitor
 from plugins.ssh_user_monitor import SSHConnectedUserMonitor
+from plugins.disk_activity_monitor import DiskActivityMonitor
 from time import sleep
 from os import system
 import sys
 
 MONITORING_PERIOD = 30 #30 min
+CHECK_INTERVAL_IN_SECS = 30
+MONITORING_ITERATIONS = (MONITORING_PERIOD * 60) / CHECK_INTERVAL_IN_SECS
 
 class MonitoringService:
 
@@ -25,7 +28,8 @@ class MonitoringService:
             QBittorrentMonitor(),
             PlexMonitor(),
             ProcessMonitor(),
-            SSHConnectedUserMonitor()
+            SSHConnectedUserMonitor(),
+            DiskActivityMonitor()
         ]
         return monitors
 
@@ -49,10 +53,11 @@ class MonitoringService:
                 current_iteration = 0
             else:
                 current_iteration += 1
-            print("Iteration count: %d" % current_iteration)
-            if current_iteration == MONITORING_PERIOD:
+            if current_iteration > 0 and current_iteration % 10 == 0:
+                print("Iteration count: %d" % current_iteration)
+            if current_iteration == MONITORING_ITERATIONS:
                 break
-            sleep(60)
+            sleep(CHECK_INTERVAL_IN_SECS)
 
     def shutdown_pc(self):
         #https://tojaj.com/how-to-turn-off-a-linux-system-without-root-or-sudo/
