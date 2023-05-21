@@ -20,16 +20,17 @@ def init_config_path(monitors, config_folder):
         monitor.set_config_path(config_folder)
 
 def any_monitor_has_activity(monitors):
+    any_activity = False
     for monitor in monitors:
-        if monitor.has_activity():
-            return True
-    return False
+        if monitor.is_enabled() and monitor.has_activity():
+            print("Service: %s has active" % monitor.service_name())
+            any_activity = True
+    return any_activity
 
 def check_monitor_activity(monitors):
     current_iteration = 0
     while True:
         status = any_monitor_has_activity(monitors)
-        print("Active: %s" % status)
         if status:
             current_iteration = 0
         else:
