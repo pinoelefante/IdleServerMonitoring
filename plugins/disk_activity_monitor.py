@@ -23,8 +23,3 @@ class DiskActivityMonitor(ServiceMonitorBase):
     def save_data(self, written, read):
         self.past_written = written
         self.past_read = read
-
-    def stop(self):
-        super().stop()
-        del self.past_written
-        del self.past_read
