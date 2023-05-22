@@ -44,11 +44,3 @@ class ServiceMonitorBase:
         self.config_path=config_folder
         self.reload()
 
-    def is_linux(self) -> bool:
-        return sys.platform.startswith("linux")
-
-    def is_windows(self) -> bool:
-        return sys.platform.startswith("win")
-    
-    def is_mac(self) -> bool:
-        return sys.platform.startswith("darwin")

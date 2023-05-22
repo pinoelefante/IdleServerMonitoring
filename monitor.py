@@ -1,18 +1,22 @@
 from libs.service_monitor_base import ServiceMonitorBase
+from libs.shutdown_service import ShutdownService
 from plugins.qbittorrent_service_monitor import QBittorrentMonitor
 from plugins.plex_service_monitor import PlexMonitor
 from plugins.process_monitor import ProcessMonitor
 from plugins.ssh_user_monitor import SSHConnectedUserMonitor
 from plugins.disk_activity_monitor import DiskActivityMonitor
 from time import sleep
-from os import system
 import sys
 
-MONITORING_PERIOD = 30 #30 min
+
+MONITORING_PERIOD = 1 #30 min
 CHECK_INTERVAL_IN_SECS = 30
 MONITORING_ITERATIONS = (MONITORING_PERIOD * 60) / CHECK_INTERVAL_IN_SECS
 
 class MonitoringService:
+
+    def __init__(self) -> None:
+        self.shutdown_service = ShutdownService()
 
     def start(self, config):
         monitors = self.load_monitors()
@@ -27,9 +31,9 @@ class MonitoringService:
         monitors = [
             QBittorrentMonitor(),
             PlexMonitor(),
-            ProcessMonitor(),
-            SSHConnectedUserMonitor(),
-            DiskActivityMonitor()
+            #ProcessMonitor(),
+            #SSHConnectedUserMonitor(),
+            #DiskActivityMonitor()
         ]
         return monitors
 
@@ -60,8 +64,9 @@ class MonitoringService:
             sleep(CHECK_INTERVAL_IN_SECS)
 
     def shutdown_pc(self):
-        #https://tojaj.com/how-to-turn-off-a-linux-system-without-root-or-sudo/
-        system("systemctl poweroff")
+        self.shutdown_service.shutdown()
+        sleep(2)
+        self.shutdown_service.interrupt()
 
 if __name__ == "__main__":
     print("Starting monitoring")

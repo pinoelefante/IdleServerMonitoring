@@ -6,3 +6,6 @@ plexapi
 
 #process monitor
 psutil
+
+#linux shutdown
+dbus-python

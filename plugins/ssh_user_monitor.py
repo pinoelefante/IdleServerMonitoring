@@ -1,4 +1,5 @@
 from libs.service_monitor_base import ServiceMonitorBase
+from libs.utils import is_linux
 from subprocess import PIPE, Popen
 
 class SSHConnectedUserMonitor(ServiceMonitorBase):
@@ -12,7 +13,7 @@ class SSHConnectedUserMonitor(ServiceMonitorBase):
         return connected_users > 0
     
     def is_enabled(self):
-        return self.is_linux() and super().is_enabled()
+        return is_linux() and super().is_enabled()
     
     def run_shell_command(self, command):
         process = Popen(args=command, stdout=PIPE, shell=True)
