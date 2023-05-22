@@ -67,4 +67,25 @@ class LinuxShutdown(ShutdownBase):
         return can
     
     def shutdown(self):
-        self.ck_iface.get_dbus_method("PowerOff")(False)
+        try:
+            self.ck_iface.get_dbus_method("PowerOff")(False)
+        except dbus.exceptions.DBusException:
+            print("Make sure you can shutdown the computer without being root")
+            print("""
+Prepare PolicyKit permissions:
+As root create a new policy file:
+/etc/polkit-1/localauthority/50-local.d/allow_all_users_to_shutdown.pkla
+
+and add the following content:
+
+[Allow all users to shutdown]
+Identity=unix-user:*
+Action=org.freedesktop.login1.power-off;org.freedesktop.login1.power-off-multiple-sessions
+ResultActive=yes
+ResultAny=yes
+
+Save the file and reload daemon
+systemctl daemon-reload
+
+Credits: https://tojaj.com/how-to-turn-off-a-linux-system-without-root-or-sudo/
+""")
