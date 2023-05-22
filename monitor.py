@@ -17,6 +17,9 @@ class MonitoringService:
 
     def __init__(self) -> None:
         self.shutdown_service = ShutdownService()
+        if not self.shutdown_service.can_shutdown():
+            print("User can't shutdown the server")
+            exit(-1)
 
     def start(self, config):
         monitors = self.load_monitors()
