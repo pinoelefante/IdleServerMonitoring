@@ -1,4 +1,5 @@
 {
+    "enabled": "true",
     "data_written_between_interval_in_mb": 64,
     "data_read_between_interval_in_mb": 32
 }

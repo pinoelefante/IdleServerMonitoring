@@ -2,7 +2,7 @@ from libs.service_monitor_base import ServiceMonitorBase
 from libs.utils import is_linux
 from subprocess import PIPE, Popen
 
-class SSHConnectedUserMonitor(ServiceMonitorBase):
+class Plugin(ServiceMonitorBase):
     def has_activity(self):
         user_command = self.config_data.get("user_list_command", "who")
         grep_string = self.config_data.get("grep_string", "pts")
@@ -18,3 +18,6 @@ class SSHConnectedUserMonitor(ServiceMonitorBase):
     def run_shell_command(self, command):
         process = Popen(args=command, stdout=PIPE, shell=True)
         return process.communicate()[0]
+    
+    def service_name(self) -> str:
+        return "SSHConnectedUserMonitor"

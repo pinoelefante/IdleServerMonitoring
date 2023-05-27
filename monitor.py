@@ -1,13 +1,9 @@
 from libs.service_monitor_base import ServiceMonitorBase
 from libs.shutdown_service import ShutdownService
-from plugins.qbittorrent_service_monitor import QBittorrentMonitor
-from plugins.plex_service_monitor import PlexMonitor
-from plugins.process_monitor import ProcessMonitor
-from plugins.ssh_user_monitor import SSHConnectedUserMonitor
-from plugins.disk_activity_monitor import DiskActivityMonitor
 from time import sleep
 import sys
-
+import os
+import importlib
 
 MONITORING_PERIOD = 1 #30 min
 CHECK_INTERVAL_IN_SECS = 30
@@ -22,40 +18,41 @@ class MonitoringService:
             exit(-1)
 
     def start(self, config):
-        monitors = self.load_monitors()
-        if len(monitors) == 0:
+        self.load_monitors(config)
+        if len(self.monitors) == 0:
             print("No monitor configured")
             exit(1)
-        self.init_config_path(monitors=monitors, config_folder=config)
-        self.check_monitor_activity(monitors)
+        self.check_monitor_activity()
         self.shutdown_pc()
 
-    def load_monitors(self) -> list[ServiceMonitorBase]:
-        monitors = [
-            QBittorrentMonitor(),
-            PlexMonitor(),
-            #ProcessMonitor(),
-            #SSHConnectedUserMonitor(),
-            #DiskActivityMonitor()
-        ]
-        return monitors
+    def load_monitors(self, config_path) -> list[ServiceMonitorBase]:
+        modules = []
+        files = filter(lambda filename : filename.find(".py") > 0, os.listdir("plugins")) 
+        for f in files:
+            module = importlib.import_module("plugins.%s" % f.split(".")[0])
+            instance = module.Plugin(config_path=config_path)
+            modules.append(instance)
+        self.monitors = modules
 
-    def init_config_path(self, monitors:list[ServiceMonitorBase], config_folder:str):
-        for monitor in monitors:
+    def init_config_path(self, config_folder:str):
+        for monitor in self.monitors:
             monitor.set_config_path(config_folder)
 
-    def any_monitor_has_activity(self, monitors:list[ServiceMonitorBase]) -> bool:
+    def any_monitor_has_activity(self) -> bool:
         any_activity = False
+        monitors = self.monitors
         for monitor in monitors:
-            if monitor.is_enabled() and monitor.has_activity():
+            if not monitor.is_enabled():
+                continue
+            if monitor.has_activity():
                 print("Detected activity for service %s" % monitor.service_name())
                 any_activity = True
         return any_activity
 
-    def check_monitor_activity(self, monitors:list[ServiceMonitorBase]):
+    def check_monitor_activity(self):
         current_iteration = 0
         while True:
-            status = self.any_monitor_has_activity(monitors)
+            status = self.any_monitor_has_activity(self.monitors)
             if status:
                 current_iteration = 0
             else:
@@ -68,8 +65,6 @@ class MonitoringService:
 
     def shutdown_pc(self):
         self.shutdown_service.shutdown()
-        sleep(2)
-        self.shutdown_service.interrupt()
 
 if __name__ == "__main__":
     print("Starting monitoring")
@@ -77,7 +72,9 @@ if __name__ == "__main__":
         print("python monitor.py <config_dir>")
         exit(1)
     config = sys.argv[1]
+    if not os.path.isdir(config):
+        print("You must provide a valid directory for configs")
+        exit(1)
     print("Config folder: %s" % config)
-
     monitoring = MonitoringService()
     monitoring.start(config)

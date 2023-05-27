@@ -2,7 +2,7 @@ from libs.service_monitor_base import ServiceMonitorBase
 from plexapi.server import PlexServer
 from plexapi.myplex import MyPlexAccount
 
-class PlexMonitor(ServiceMonitorBase):
+class Plugin(ServiceMonitorBase):
     def has_activity(self):
         if self.plexserver == None:
             return False
@@ -35,3 +35,6 @@ class PlexMonitor(ServiceMonitorBase):
         print("Plex: access using MyPlex")
         account = MyPlexAccount(username=username, password=password)
         self.plexserver = account.resource(server_name).connect()
+    
+    def service_name(self) -> str:
+        return "PlexMonitor"

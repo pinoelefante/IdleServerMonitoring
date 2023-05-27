@@ -55,7 +55,6 @@ class WindowsShutdown(ShutdownBase):
         system("shutdown /a /f /t 0")
 
 class LinuxShutdown(ShutdownBase):
-    #https://tojaj.com/how-to-turn-off-a-linux-system-without-root-or-sudo/
 
     def __init__(self) -> None:
         sys_bus = dbus.SystemBus()

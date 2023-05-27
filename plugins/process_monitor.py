@@ -2,10 +2,10 @@ from typing import Iterator
 import psutil
 from libs.service_monitor_base import ServiceMonitorBase
 
-class ProcessMonitor(ServiceMonitorBase):
+class Plugin(ServiceMonitorBase):
     
     def has_activity(self):
-        processes = self.config_data
+        processes = self.config_data["processes"]
         if len(processes) == 0:
             return False
         running_processes = list(psutil.process_iter(["pid", "name", "username"]))
@@ -24,3 +24,6 @@ class ProcessMonitor(ServiceMonitorBase):
             except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
                 pass
         return False
+    
+    def service_name(self) -> str:
+        return "ProcessMonitor"

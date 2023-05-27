@@ -1,1 +1,4 @@
-["apt", "apt-get", "yum", "cp", "mv"]
+{
+    "enabled": "true",
+    "processes": ["apt", "apt-get", "yum", "cp", "mv"]
+}

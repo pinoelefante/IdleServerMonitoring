@@ -1,15 +1,17 @@
 from os.path import join, exists
 from json import load
-import sys
 
 class ServiceMonitorBase:
+
+    def __init__(self, config_path) -> None:
+        self.set_config_path(config_path)
 
     def __del__(self):
         self.stop()
 
     def is_enabled(self) -> bool:
-        has_attr = hasattr(self.config_data, "enabled")
-        return not has_attr or (has_attr and bool(self.config_data.get("enabled", True)))
+        current_conf = self.config_data.get("enabled", "true")
+        return current_conf == "true"
     
     def has_activity(self) -> bool:
         return False

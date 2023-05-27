@@ -1,7 +1,7 @@
 from libs.service_monitor_base import ServiceMonitorBase
 import psutil
 
-class DiskActivityMonitor(ServiceMonitorBase):
+class Plugin(ServiceMonitorBase):
 
     def has_activity(self) -> bool:
         stats = psutil.disk_io_counters(perdisk=False)
@@ -23,3 +23,6 @@ class DiskActivityMonitor(ServiceMonitorBase):
     def save_data(self, written, read):
         self.past_written = written
         self.past_read = read
+    
+    def service_name(self) -> str:
+        return "DiskActivityMonitor"

@@ -6,7 +6,7 @@ LAST_ACTIVITY_KEY = "last_activity"
 PROGRESS_KEY = "progress"
 HASH_KEY = "hash"
 
-class QBittorrentMonitor(ServiceMonitorBase):
+class Plugin(ServiceMonitorBase):
     def reload(self):
         super().reload()
         self.monitor_data = dict() ## clear and init monitor data
@@ -58,3 +58,6 @@ class QBittorrentMonitor(ServiceMonitorBase):
         t_progress = torrent[PROGRESS_KEY] #download percentage
         t_ratio = torrent[RATIO_KEY] #share ratio
         self.monitor_data.update( {t_hash: { LAST_ACTIVITY_KEY: t_last_activity, PROGRESS_KEY: t_progress, RATIO_KEY: t_ratio} })
+
+    def service_name(self) -> str:
+        return "QBittorrentMonitor"
