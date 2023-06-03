@@ -1,0 +1,11 @@
+[Unit]
+Description=Service to monitor idle status and shutdown the pc
+After=network.target
+
+[Service]
+Type=simple
+User=username
+ExecStart=python3 /opt/idle_monitor/monitor.py /opt/idle_monitor/configs
+
+[Install]
+WantedBy=multi-user.target
