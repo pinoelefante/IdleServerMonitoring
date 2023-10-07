@@ -10,9 +10,12 @@ class Plugin(ServiceMonitorBase):
     def reload(self):
         super().reload()
         self.monitor_data = dict() ## clear and init monitor data
-
-    def after_config_file_loaded(self):
-        self.client = qbittorrentapi.Client(**self.config_data)
+        
+    def start(self):
+        super().start()
+        host=self.config_data["host"]
+        port=self.config_data["port"]
+        self.client = qbittorrentapi.Client(host=host, port=port)
         try:
             self.client.auth_log_in()
         except qbittorrentapi.LoginFailed as e:

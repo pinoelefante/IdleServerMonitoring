@@ -12,8 +12,9 @@ class Plugin(ServiceMonitorBase):
         except:
             print("Plex: can't list running sessions")
             return False
-    
-    def after_config_file_loaded(self):
+
+    def start(self):
+        super().start()
         try:
             if "baseurl" in self.config_data and "token" in self.config_data:
                 self.access_using_token(**self.config_data)

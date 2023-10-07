@@ -27,7 +27,11 @@ class ServiceMonitorBase:
         self.after_config_file_loaded()
 
     def after_config_file_loaded(self):
-        pass
+        if self.is_enabled():
+            self.start()
+
+    def start(self):
+        print("Starting %s" % self.service_name())
 
     def stop(self):
         print("Stopping %s" % self.service_name())
