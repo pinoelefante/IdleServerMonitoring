@@ -1,5 +1,6 @@
 from libs.service_monitor_base import ServiceMonitorBase
 from libs.shutdown_service import ShutdownService
+from libs.utils import is_windows
 from time import sleep
 import sys
 import os
@@ -77,6 +78,7 @@ class MonitoringService:
     def check_monitor_activity(self):
         current_iteration = 0
         monitoring_iterations = int((self.monitoring_period * 60) / self.check_interval)
+        interrupted = False
         if monitoring_iterations < 1:
             monitoring_iterations = 1
         while current_iteration < monitoring_iterations:
@@ -84,6 +86,7 @@ class MonitoringService:
                 sleep(self.check_interval)
             except:
                 print("Sleep interrupted")
+                interrupted = True
                 break
             if self.do_reload:
                 break
@@ -97,7 +100,8 @@ class MonitoringService:
         if self.do_reload:
             self.reload()
         else:
-            self.shutdown_pc()
+            if not interrupted:
+                self.shutdown_pc()
 
     def shutdown_pc(self):
         print("Shutting down")
@@ -123,5 +127,5 @@ if __name__ == "__main__":
 
     monitoring = MonitoringService(config_path, plugin_path)
     
-    signal.signal(signal.SIGHUP, monitoring.signal_handler)
+    signal.signal(signal.SIGBREAK if is_windows() else signal.SIGHUP, monitoring.signal_handler)
     monitoring.start()
